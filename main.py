@@ -2,25 +2,34 @@ import pygame as pg
 import math
 import numpy as np
 
+
+BACKGROUND_COLOUR = (126, 161, 217)
+
+
 class Ball2D:
 
-    def __init__(self, draw_func, x, y, radius, rotation, colour=(0, 200, 50)):
-        self._draw_func = draw_func
-        self._position = np.array([x, y])
+    def __init__(self, x, y, radius, rotation, colour=(45, 173, 60), drawer=None):
+        self._position = np.array([float(x), float(y)])
         self._radius = radius
         self._angle = rotation
         self._colour = colour
         self._velocity = np.array([10, 10])
+        self._angular_velocity = math.pi / 8
+        self._drawer = drawer
 
     def draw(self):
-        if self._draw_func:
-            self._draw_func(self._position, self._radius, self._colour, self._angle)
+        return self._drawer.draw(self._position, self._radius, self._colour, self._angle) if self._drawer else tuple()
 
-    def update(self, dt):
-        self._position += self._velocity * dt
+    def update(self, delta):
+        self._position += self._velocity * delta
+        self._angle += self._angular_velocity * delta
 
-    def inc_rot(self, dt):
-        self._angle = self._angle + dt * math.pi / 2
+    def set_drawer(self, drawer):
+        self._drawer = drawer
+
+    def get_position(self):
+        return self._position
+
 
 pg.init()
 
@@ -28,25 +37,55 @@ window = pg.display.set_mode((1000, 500))
 
 pg.display.set_caption("Collisions 2D")
 
+window.fill(BACKGROUND_COLOUR)
+pg.display.update()
 
-def draw_circle(pos, r, col, rot):
-    pg.draw.circle(window, col, pos, r)
-    radius_end = (pos[0] + 0.8 * r * math.cos(rot), pos[1] + 0.8 * r * math.sin(rot))
-    pg.draw.line(window, (100, 100, 100), pos, radius_end, 3)
+
+class CircleDrawer:
+
+    def __init__(self, first_pos, rotating=False):
+        self._previous_pos = first_pos
+        self._rotating = rotating
+
+    def draw(self, position, radius, colour, rotation=0.0):
+        old_rect = pg.Rect(self._previous_pos[0] - radius,
+                           self._previous_pos[1] - radius,
+                           radius * 2, radius * 2)
+        pg.draw.rect(window, BACKGROUND_COLOUR, old_rect)
+        new_rect = pg.Rect(position[0] - radius,
+                           position[1] - radius,
+                           radius * 2, radius * 2)
+        i_pos = (int(round(position[0])), int(round(position[1])))  # pygame draw requires ints
+        pg.draw.circle(window, colour, i_pos, radius)
+        if self._rotating:
+            radius_end = (int(round(position[0] + 0.8 * radius * math.cos(rotation))),
+                          int(round(position[1] + 0.8 * radius * math.sin(rotation))))
+            pg.draw.line(window, (100, 100, 100), i_pos, np.round(radius_end), 3)
+        return old_rect, new_rect
 
 
 should_run = True
-c = Ball2D(draw_circle, 200, 200, 80, math.pi / 2)
+c = Ball2D(200, 200, 80, math.pi / 2)
+c.set_drawer(CircleDrawer(c.get_position(), True))
+
+previous_time = pg.time.get_ticks()
+
+balls = [c]
 
 while should_run:
-    pg.time.delay(100)
-
     for event in pg.event.get():
         if event.type == pg.QUIT:
             should_run = False
 
-   # pg.draw.circle(window, (0, 255, 0), (200, 200), 80)
-    c.draw()
-    c.update(0.016)
-    c.inc_rot(0.016)
-    pg.display.update()
+    current_time = pg.time.get_ticks()
+    dt = float(current_time - previous_time) / 1000.0
+    previous_time = current_time
+    dirty_rects = []
+
+    for b in balls:
+        rects = b.draw()
+        b.update(dt)
+        dirty_rects += rects
+
+    print(dt)
+    pg.display.update(dirty_rects)
