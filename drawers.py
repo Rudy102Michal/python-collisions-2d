@@ -22,10 +22,6 @@ class CircleDrawer(Drawer):
         self._rotating = rotating
 
     def draw(self, position, radius, colour, rotation=0.0):
-        old_rect = pg.Rect(self._previous_pos[0] - radius,
-                           self._previous_pos[1] - radius,
-                           radius * 2, radius * 2)
-        pg.draw.rect(self._surface, self._bg_colour, old_rect)
         new_rect = pg.Rect(position[0] - radius,
                            position[1] - radius,
                            radius * 2, radius * 2)
@@ -35,4 +31,12 @@ class CircleDrawer(Drawer):
             radius_end = (int(round(position[0] + 0.8 * radius * math.cos(rotation))),
                           int(round(position[1] + 0.8 * radius * math.sin(rotation))))
             pg.draw.line(self._surface, (100, 100, 100), i_pos, np.round(radius_end), 3)
-        return old_rect, new_rect
+        self._previous_pos = i_pos
+        return [new_rect]
+
+    def draw_cleanup(self, radius):
+        old_rect = pg.Rect(self._previous_pos[0] - radius,
+                           self._previous_pos[1] - radius,
+                           radius * 2, radius * 2)
+        pg.draw.rect(self._surface, self._bg_colour, old_rect)
+        return [old_rect]

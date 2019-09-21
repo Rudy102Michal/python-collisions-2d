@@ -1,9 +1,11 @@
 import pygame as pg
 import math
 import random
+import numpy
 
 from drawers import CircleDrawer
 from ball import Ball2D
+from collision_handler import CircleCollisionHandler
 
 BACKGROUND_COLOUR = (126, 161, 217)
 WINDOW_SIZE = (1000, 500)
@@ -11,14 +13,23 @@ WINDOW_SIZE = (1000, 500)
 
 def spawn_balls(no_of_balls, window):
     balls = []
-    for i in range(no_of_balls):
+    i = 0
+    while i < no_of_balls:
         radius = random.randrange(10, 50)
         x = random.randrange(radius + 5, WINDOW_SIZE[0] - radius - 5)
         y = random.randrange(radius + 5, WINDOW_SIZE[1] - radius - 5)
-        rotation = math.pi * random.random()
+        rotation = random.uniform(0.0, math.pi)
+        ang_velocity = random.uniform(-math.pi * 0.5, math.pi * 0.5)
+        velocity = numpy.array([random.uniform(-15.0, 15.0), random.uniform(-15.0, 15.0)])
         b = Ball2D(x, y, radius, rotation)
         b.set_drawer(CircleDrawer(window, b.get_position(), BACKGROUND_COLOUR, True))
-        balls.append(b)
+        b.set_angular_velocity(ang_velocity)
+        b.set_velocity(velocity * 10)
+        if CircleCollisionHandler.detect_any_collision(balls, b):
+            i -= 1
+        else:
+            balls.append(b)
+        i += 1
     return balls
 
 
@@ -37,7 +48,9 @@ if __name__ == "__main__":
 
     previous_time = pg.time.get_ticks()
 
-    balls = spawn_balls(2, window)
+    balls = spawn_balls(5, window)
+
+    collision_handler = CircleCollisionHandler(WINDOW_SIZE)
 
     should_run = True
 
@@ -50,6 +63,12 @@ if __name__ == "__main__":
         dt = float(current_time - previous_time) / 1000.0
         previous_time = current_time
         dirty_rects = []
+
+        for b in balls:
+            rects = b.draw_cleanup()
+            dirty_rects += rects
+
+        collision_handler.handle_boundaries(balls)
 
         for b in balls:
             rects = b.draw()
