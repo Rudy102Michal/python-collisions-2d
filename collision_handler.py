@@ -31,8 +31,10 @@ class CircleCollisionHandler(CollisionHandler):
             pos = o.get_position()
             if pos[0] <= r or pos[0] >= (self._width - r):
                 vel[0] *= -1
+                pos[0] = max(r, min(self._width - r, pos[0]))
             if pos[1] <= r or pos[1] >= (self._height - r):
                 vel[1] *= -1
+                pos[1] = max(r, min(self._height - r, pos[1]))
             o.set_velocity(vel)
 
     def handle_collisions(self, objects, drawer):
