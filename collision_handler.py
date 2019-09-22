@@ -44,7 +44,6 @@ class CircleCollisionHandler(CollisionHandler):
             for j in range(i + 1, len(objects)):
                 b = objects[j]
                 if CircleCollisionHandler._detect_pair_collision(a, b):
-                    print("Collision!")
                     col_normal = a.get_position() - b.get_position()
                     col_normal /= np.linalg.norm(col_normal)
 
@@ -59,34 +58,6 @@ class CircleCollisionHandler(CollisionHandler):
 
                     a.set_velocity(u1)
                     b.set_velocity(u2)
-
-                    # drawer(col_normal)
-
-                    # restitution = 1.0
-                    # friction = 1.0
-                    # tangent = np.array([-col_normal[1], col_normal[0]])
-                    # v1 = a.get_velocity() + a.get_angular_velocity() * a.get_radius() * tangent
-                    # v2 = b.get_velocity() + b.get_angular_velocity() * b.get_radius() * tangent * -1
-                    # relative_v = v1 - v2
-                    # tan_vel_component = tangent * np.dot(relative_v, tangent)
-                    # col_point1 = -col_normal * a.get_radius()
-                    # col_point2 = col_normal * b.get_radius()
-                    #
-                    # col_response = (1.0 + restitution) * np.dot(col_normal, relative_v) \
-                    #                + np.cross(col_point1, col_normal) * a.get_angular_velocity() \
-                    #                - np.cross(col_point2, col_normal) * b.get_angular_velocity()
-                    # col_response /= 2.0 + np.cross(col_point1, col_normal) * a.get_inertia() \
-                    #                 + np.cross(col_point2, col_normal) * b.get_inertia()
-                    # a_new_vel = a.get_velocity() - (col_normal - friction * tan_vel_component) * col_response / a.get_mass()
-                    # b_new_vel = a.get_velocity() + (col_normal - friction * tan_vel_component) * col_response / b.get_mass()
-                    # a.set_velocity(a_new_vel)
-                    # b.set_velocity(b_new_vel)
-                    # a_new_ang_vel = a.get_angular_velocity() - col_response \
-                    #                 * np.cross(col_point1, col_normal - friction * tan_vel_component) / a.get_inertia()
-                    # b_new_ang_vel = a.get_angular_velocity() + col_response \
-                    #                 * np.cross(col_point2, col_normal - friction * tan_vel_component) / b.get_inertia()
-                    # a.set_angular_velocity(a_new_ang_vel)
-                    # b.set_angular_velocity(b_new_ang_vel)
 
     @staticmethod
     def detect_any_collision(objects, subject):
