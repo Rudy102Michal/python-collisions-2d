@@ -4,12 +4,15 @@ import numpy as np
 
 class Ball2D:
 
-    def __init__(self, x, y, radius, rotation=0.0, mass=1.0, colour=(45, 173, 60), drawer=None):
+    def __init__(self, x, y, radius, rotation=0.0, mass=1.0, colour=(45, 173, 60), drawer=None, colour_setter=None):
         self._position = np.array([float(x), float(y)])
         self._radius = radius
         self._angle = rotation
         self._mass = (radius / 10.0) * 2
-        self._colour = colour
+        if colour_setter is None:
+            self._colour = colour
+        else:
+            self._colour = colour_setter(colour, self._mass)
         self._velocity = np.array([10, 10])
         self._angular_velocity = 0
         self._drawer = drawer

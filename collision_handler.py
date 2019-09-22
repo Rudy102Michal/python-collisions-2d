@@ -21,8 +21,9 @@ class CollisionHandler:
 
 class CircleCollisionHandler(CollisionHandler):
 
-    def __init__(self, bound_size):
+    def __init__(self, bound_size, restitution):
         CollisionHandler.__init__(self, bound_size)
+        self._restitution = restitution
 
     def handle_boundaries(self, objects):
         for o in objects:
@@ -37,7 +38,7 @@ class CircleCollisionHandler(CollisionHandler):
                 pos[1] = max(r, min(self._height - r, pos[1]))
             o.set_velocity(vel)
 
-    def handle_collisions(self, objects, drawer):
+    def handle_collisions(self, objects):
         for i in range(len(objects)):
             a = objects[i]
             for j in range(i + 1, len(objects)):
@@ -50,8 +51,7 @@ class CircleCollisionHandler(CollisionHandler):
                     if np.dot(col_normal, a.get_velocity() - b.get_velocity()) >= 0.0:
                         continue
 
-                    e = 1.0
-                    J = a.get_mass() * b.get_mass() * (e + 1.0) / (a.get_mass() + b.get_mass())
+                    J = a.get_mass() * b.get_mass() * (self._restitution + 1.0) / (a.get_mass() + b.get_mass())
                     J *= np.dot(a.get_velocity() - b.get_velocity(), col_normal)
 
                     u1 = a.get_velocity() - (J / a.get_mass()) * col_normal
