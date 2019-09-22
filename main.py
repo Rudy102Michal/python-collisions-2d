@@ -40,6 +40,12 @@ if __name__ == "__main__":
 
     window = pg.display.set_mode(WINDOW_SIZE)
 
+    norms = []
+    def draw_tangent(v):
+        pg.draw.line(window, (100, 100, 100), (200, 200), (200 + int(20.0 * v[0]), 200 + int(20.0 * v[1])), 3)
+        norms.append(pg.Rect((200, 200), (200 + int(20.0 * v[0]), 200 + int(20.0 * v[1]))))
+
+
     pg.display.set_caption("Collisions 2D")
 
     # Fill the whole background once at the beginning
@@ -62,13 +68,14 @@ if __name__ == "__main__":
         current_time = pg.time.get_ticks()
         dt = float(current_time - previous_time) / 1000.0
         previous_time = current_time
-        dirty_rects = []
+        dirty_rects = [] + norms
 
         for b in balls:
             rects = b.draw_cleanup()
             dirty_rects += rects
 
         collision_handler.handle_boundaries(balls)
+        collision_handler.handle_collisions(balls, draw_tangent)
 
         for b in balls:
             rects = b.draw()
