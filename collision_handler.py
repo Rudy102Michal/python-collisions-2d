@@ -46,6 +46,10 @@ class CircleCollisionHandler(CollisionHandler):
                     print("Collision!")
                     col_normal = a.get_position() - b.get_position()
                     col_normal /= np.linalg.norm(col_normal)
+
+                    if np.dot(col_normal, a.get_velocity() - b.get_velocity()) >= 0.0:
+                        continue
+
                     e = 1.0
                     J = a.get_mass() * b.get_mass() * (e + 1.0) / (a.get_mass() + b.get_mass())
                     J *= np.dot(a.get_velocity() - b.get_velocity(), col_normal)
@@ -57,8 +61,7 @@ class CircleCollisionHandler(CollisionHandler):
                     b.set_velocity(u2)
 
                     # drawer(col_normal)
-                    # if np.dot(col_normal, a.get_velocity() - b.get_velocity()) >= 0.0:
-                    #     continue
+
                     # restitution = 1.0
                     # friction = 1.0
                     # tangent = np.array([-col_normal[1], col_normal[0]])

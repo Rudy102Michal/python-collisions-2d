@@ -8,7 +8,7 @@ class Ball2D:
         self._position = np.array([float(x), float(y)])
         self._radius = radius
         self._angle = rotation
-        self._mass = mass
+        self._mass = (radius / 10.0) * 2
         self._colour = colour
         self._velocity = np.array([10, 10])
         self._angular_velocity = 0
