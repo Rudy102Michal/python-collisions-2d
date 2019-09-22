@@ -43,7 +43,7 @@ def process_arguments(args):
         WINDOW_SIZE = (args.width, WINDOW_SIZE[1])
     if args.height:
         WINDOW_SIZE = (WINDOW_SIZE[0], args.height)
-    if args.balls and args.balls >= 0:
+    if args.balls is not None and args.balls >= 0:
         parameters['BALL_COUNT'] = args.balls
     else:
         parameters['BALL_COUNT'] = DEFAULT_BALL_COUNT
@@ -54,7 +54,7 @@ def process_arguments(args):
     if args.rgb:
         parameters['HSV'] = False
         try:
-            parameters['BALL_COLOUR'] = tuple([int(x) for x in args.rgb.strip('()').split(',')])
+            parameters['BALL_COLOUR'] = tuple([max(0, min(255, int(x))) for x in args.rgb.strip('()').split(',')])
         except:
             print("Wrong RGB format. Using default colour {}".format(DEFAULT_BALL_COLOUR))
             parameters['BALL_COLOUR'] = DEFAULT_BALL_COLOUR
